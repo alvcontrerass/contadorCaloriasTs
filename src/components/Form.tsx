@@ -46,7 +46,7 @@ export default function Form() {
             <input type="number" id="calories" className="border border-slate-300 p-2 rounded-lg" placeholder="Cantidad de calorias" value={activity.calories} onChange={handleChange}/>
         </div>
 
-        <input type="submit" className="bg-gray-800 hover:bg-gray-900 w-full p-2 font-bold uppercase text-white cursor-pointer disabled:opacity-10" value="Guardar Comida o Ejercicio" disabled={!isValidActivity()} />
+        <input type="submit" className="bg-gray-800 hover:bg-gray-900 w-full p-2 font-bold uppercase text-white cursor-pointer disabled:opacity-10" value={activity.category === 1 ? "Agregar Comida" : "Agregar Ejercicio" } disabled={!isValidActivity()} />
     </form>
   )
 }
