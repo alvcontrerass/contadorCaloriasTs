@@ -1,67 +1,105 @@
-import {categories} from "../data/categories"
-import {v4 as uuidv4} from "uuid"
-import { useState } from "react"
-import type { Activity } from "../types"
-import type { ActivityActions } from "../reducers/activityReducer"
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { categories } from "../data/categories";
+import type { ActivityActions } from "../reducers/activityReducer";
+import type { Activity } from "../types";
 
 interface FormProps {
-    dispatch: React.Dispatch<ActivityActions>
+	dispatch: React.Dispatch<ActivityActions>;
 }
 
 const initialState: Activity = {
-    id: uuidv4(),
-    category: 1,
-    name: '',
-    calories: 0
-}
+	id: uuidv4(),
+	category: 1,
+	name: "",
+	calories: 0,
+};
 
-export default function Form({dispatch}: FormProps) {
+export default function Form({ dispatch }: FormProps) {
+	const [activity, setActivity] = useState<Activity>(initialState);
 
-    const [activity, setActivity] = useState<Activity>(initialState)
+	const handleChange = (
+		e:
+			| React.ChangeEvent<HTMLSelectElement>
+			| React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const isNumberField = ["category", "calories"].includes(e.target.id);
+		setActivity({
+			...activity,
+			[e.target.id]: isNumberField ? Number(e.target.value) : e.target.value,
+		});
+	};
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLInputElement>) => {
-        const isNumberField = ["category", "calories"].includes(e.target.id)
-        setActivity({
-            ...activity,
-            [e.target.id] : isNumberField ? Number(e.target.value) : e.target.value
-        })
-    }
+	const isValidActivity = () => {
+		const { name, calories } = activity;
+		return name.trim() !== "" && calories > 0;
+	};
 
-    const isValidActivity = () => {
-        const {name, calories} = activity
-        return name.trim() !== "" && calories > 0
-    }
+	const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		dispatch({ type: "save-activity", payload: { newActivity: activity } });
+		setActivity({ ...initialState, id: uuidv4() });
+	};
 
-    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        dispatch({ type: "save-activity", payload: {newActivity: activity}})
-        setActivity({...initialState, id: uuidv4()})
-    }
+	return (
+		<form
+			action=""
+			className="space-y-5 bg-white shadow p-10 rounded-lg"
+			onSubmit={handleSubmit}
+		>
+			<div className="grid grid-cols-1 gap-3">
+				<label htmlFor="category" className="font-bold">
+					Categoria:
+				</label>
+				<select
+					name="category"
+					id="category"
+					className=" border border-slate-300 p-2 rounded-lg w-full bg-white"
+					value={activity.category}
+					onChange={handleChange}
+				>
+					{categories.map((category) => (
+						<option value={category.id} key={category.id}>
+							{category.name}
+						</option>
+					))}
+				</select>
+			</div>
 
-  return (
-    <form action="" className="space-y-5 bg-white shadow p-10 rounded-lg" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 gap-3">
-            <label htmlFor="category" className="font-bold">Categoria:</label>
-            <select name="category" id="category" className=" border border-slate-300 p-2 rounded-lg w-full bg-white" value={activity.category} onChange={handleChange}>
-                {categories.map(category => (
-                    <option value={category.id} key={category.id}>
-                        {category.name}
-                    </option>
-                ))}
-            </select>
-        </div>
+			<div className="grid grid-cols-1 gap-3">
+				<label htmlFor="name" className="font-bold">
+					Actividad:
+				</label>
+				<input
+					type="text"
+					id="name"
+					className="border border-slate-300 p-2 rounded-lg"
+					placeholder="Ej. Comida, Jugo de naranja, Ejercicio, Pesas, Caminata"
+					value={activity.name}
+					onChange={handleChange}
+				/>
+			</div>
 
-        <div className="grid grid-cols-1 gap-3">
-            <label htmlFor="name" className="font-bold">Actividad:</label>
-            <input type="text" id="name" className="border border-slate-300 p-2 rounded-lg" placeholder="Ej. Comida, Jugo de naranja, Ejercicio, Pesas, Caminata" value={activity.name} onChange={handleChange}/>
-        </div>
+			<div className="grid grid-cols-1 gap-3">
+				<label htmlFor="calories" className="font-bold">
+					Calorias:
+				</label>
+				<input
+					type="number"
+					id="calories"
+					className="border border-slate-300 p-2 rounded-lg"
+					placeholder="Cantidad de calorias"
+					value={activity.calories}
+					onChange={handleChange}
+				/>
+			</div>
 
-        <div className="grid grid-cols-1 gap-3">
-            <label htmlFor="calories" className="font-bold">Calorias:</label>
-            <input type="number" id="calories" className="border border-slate-300 p-2 rounded-lg" placeholder="Cantidad de calorias" value={activity.calories} onChange={handleChange}/>
-        </div>
-
-        <input type="submit" className="bg-gray-800 hover:bg-gray-900 w-full p-2 font-bold uppercase text-white cursor-pointer disabled:opacity-10" value={activity.category === 1 ? "Agregar Comida" : "Agregar Ejercicio" } disabled={!isValidActivity()} />
-    </form>
-  )
+			<input
+				type="submit"
+				className="bg-gray-800 hover:bg-gray-900 w-full p-2 font-bold uppercase text-white cursor-pointer disabled:opacity-10"
+				value={activity.category === 1 ? "Agregar Comida" : "Agregar Ejercicio"}
+				disabled={!isValidActivity()}
+			/>
+		</form>
+	);
 }
